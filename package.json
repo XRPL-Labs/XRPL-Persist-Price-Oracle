@@ -5,7 +5,8 @@
   "description": "Persist XRP-USD price(s) on the XRPL ('oracle')",
   "main": "src/index.js",
   "scripts": {
-    "dev": "DEBUG=oracle* nodemon src/index.js"
+    "dev": "DEBUG=oracle* nodemon src/index.js",
+    "prod": "DEBUG=oracle* node src/index.js"
   },
   "author": "Wietse Wind <w@xrpl-labs.com>",
   "license": "MIT",
