@@ -12,4 +12,13 @@ Fetch the XRP-USD rate live from the XRPL with this command (XRPL WebSocket Node
 }
 ```
 
+Want to get the last transaction updating the price data (eg. to compare ledger index / timestamp, or to view the raw data (in the transaction Memos)) simply get the last transaction:
+```json
+{
+  "command": "account_tx",
+  "account": "rXUMMaPpZqPutoRszR29jtC8amWq3APkx",
+  "limit": 1
+}
+```
+
 The account (`rXUMMaPpZqPutoRszR29jtC8amWq3APkx`) history will show you the source data (using CSV in Memo's)
