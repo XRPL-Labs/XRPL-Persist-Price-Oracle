@@ -3,6 +3,8 @@
 Persists the data fetched with [XRP-Price-Aggregator](https://github.com/XRPL-Labs/XRP-Price-Aggregator) on the XRP
 Ledger. This data is persisted by xrpl-labs.com on [`rXUMMaPpZqPutoRszR29jtC8amWq3APkx`](https://bithomp.com/explorer/rXUMMaPpZqPutoRszR29jtC8amWq3APkx).
 
+Background info: https://dev.to/wietse/aggregated-xrp-usd-price-info-on-the-xrp-ledger-1087
+
 Fetch the XRP-USD rate live from the XRPL with this command (XRPL WebSocket Node connection required, eg. using xrpl.ws)
 
 ```json
