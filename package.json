@@ -1,0 +1,22 @@
+{
+  "name": "xrpl-persist-xrpusd",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "Persist XRP-USD price(s) on the XRPL ('oracle')",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "DEBUG=oracle* nodemon src/index.js"
+  },
+  "author": "Wietse Wind <w@xrpl-labs.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  },
+  "dependencies": {
+    "debug": "^4.3.1",
+    "dotenv": "^8.2.0",
+    "rippled-ws-client": "^1.6.3",
+    "rippled-ws-client-sign": "^0.3.0",
+    "xrp-price-aggregator": "github:XRPL-Labs/XRP-Price-Aggregator"
+  }
+}
