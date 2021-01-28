@@ -9,7 +9,7 @@ const log = debug('oracle:persist')
 const timeout = setTimeout(() => {
   log('Error, killed by timeout')
   process.exit(1)
-}, 45 * 1000)
+}, (process.env.TIMEOUT_SECONDS || 55) * 1000)
 
 export default (async () => {  
   dotenv.config()
