@@ -6,16 +6,17 @@ import dotenv from 'dotenv'
 
 const log = debug('oracle:persist')
 
+const timeoutSec = (process.env.TIMEOUT_SECONDS || 55)
 const timeout = setTimeout(() => {
-  log('Error, killed by timeout')
+  log(`Error, killed by timeout after ${timeoutSec} seconds`)
   process.exit(1)
-}, (process.env.TIMEOUT_SECONDS || 55) * 1000)
+}, timeoutSec * 1000)
 
 export default (async () => {  
   dotenv.config()
   const Connection = new Conn(process.env.ENDPOINT)
 
-  log('START, GO GET DATA!')
+  log(`START (timeout at ${timeoutSec}), GO GET DATA!`)
 
   const data = await aggregator
   log('GOT DATA')
@@ -37,6 +38,7 @@ export default (async () => {
     TransactionType: 'TrustSet',
     Account: process.env.XRPL_SOURCE_ACCOUNT,
     Fee: '10',
+    Flags: 131072,
     LimitAmount: {
       currency: 'USD',
       issuer: process.env.XRPL_DESTINATION_ACCOUNT,
@@ -46,8 +48,12 @@ export default (async () => {
   }
 
   log('SIGN & SUBMIT')
-  const Signed = await new Sign(Tx, process.env.XRPL_SOURCE_ACCOUNT_SECRET, await Connection)
-  log({Signed})
+  try {
+    const Signed = await new Sign(Tx, process.env.XRPL_SOURCE_ACCOUNT_SECRET, await Connection)
+    log({Signed})
+  } catch (e) {
+    log(`Error signing / submitting: ${e.message}`)
+  }
 
   log('WRAP UP')
   ;(await Connection).close()
