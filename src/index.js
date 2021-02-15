@@ -49,10 +49,22 @@ export default (async () => {
 
   log('SIGN & SUBMIT')
   try {
-    const Signed = await new Sign(Tx, process.env.XRPL_SOURCE_ACCOUNT_SECRET, await Connection)
+    const Signed = await new Sign(Object.assign({}, Tx), process.env.XRPL_SOURCE_ACCOUNT_SECRET, await Connection)
     log({Signed})
   } catch (e) {
     log(`Error signing / submitting: ${e.message}`)
+  }
+
+  if (typeof process.env.ENDPOINT_TESTNET !== 'undefined') {
+    log('SIGN & SUBMIT TESTNET')
+    const ConnectionTestnet = await new Conn(process.env.ENDPOINT_TESTNET)
+    try {
+      const SignedTestnet = await new Sign(Object.assign({}, Tx), process.env.XRPL_SOURCE_ACCOUNT_SECRET, await ConnectionTestnet)
+      log({SignedTestnet})
+    } catch (e) {
+      log(`Error signing / submitting @ Testnet: ${e.message}`)
+    }
+    ;(await ConnectionTestnet).close()
   }
 
   log('WRAP UP')
