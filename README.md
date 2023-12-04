@@ -1,6 +1,6 @@
 # Persist XRP-USD rate on the XRPL
 
-Persists the data fetched with [XRPL-Price-Aggregator](https://github.com/XRPL-Labs/XRPL-Price-Aggregator) on the XRP
+Persists the data fetched with [XRP-Price-Aggregator](https://github.com/XRPL-Labs/XRP-Price-Aggregator) on the XRP
 Ledger. This data is persisted by xrpl-labs.com on [`rXUMMaPpZqPutoRszR29jtC8amWq3APkx`](https://xahauexplorer.com/explorer/rXUMMaPpZqPutoRszR29jtC8amWq3APkx).
 
 Background info: https://dev.to/wietse/aggregated-xrp-usd-price-info-on-the-xrp-ledger-1087
