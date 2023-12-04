@@ -1,10 +1,12 @@
 import debug from 'debug'
-import aggregator from 'xrp-price-aggregator'
-import Conn from 'rippled-ws-client'
-import Sign from 'rippled-ws-client-sign'
+import aggregator from 'xah-price-aggregator'
+import {XrplClient} from 'xrpl-client'
+import {utils, signAndSubmit, derive} from 'xrpl-accountlib'
 import dotenv from 'dotenv'
 
 const log = debug('oracle:persist')
+log(process.env.XRPL_SOURCE_ACCOUNT_SECRET)
+const keypair = derive.familySeed(process.env.XRPL_SOURCE_ACCOUNT_SECRET)
 
 const timeoutSec = (process.env.TIMEOUT_SECONDS || 55)
 const timeout = setTimeout(() => {
@@ -14,15 +16,14 @@ const timeout = setTimeout(() => {
 
 export default (async () => {  
   dotenv.config()
-  const Connection = new Conn(process.env.ENDPOINT)
+  const Connection = new XrplClient(process.env.ENDPOINT)
+  const networkInfo  = await utils.txNetworkAndAccountValues(Connection, process.env.XRPL_SOURCE_ACCOUNT)
 
   log(`START (timeout at ${timeoutSec}), GO GET DATA!`)
 
   const data = await aggregator
   log('GOT DATA')
   log({data})
-
-  await Connection
 
   const Memos = Object.keys(data.rawResultsNamed).map(k => {
     return {
@@ -37,19 +38,22 @@ export default (async () => {
   const Tx = {
     TransactionType: 'TrustSet',
     Account: process.env.XRPL_SOURCE_ACCOUNT,
-    Fee: '10',
     Flags: 131072,
+    NetworkID: Number(process.env.NETWORK_ID || 0) >= 1024 ? Number(process.env.NETWORK_ID || 0) : undefined,
     LimitAmount: {
       currency: 'USD',
       issuer: process.env.XRPL_DESTINATION_ACCOUNT,
       value: String(data.filteredMedian)
     },
-    Memos
+    Memos,
+    // Add: Sequence, Account, LastLedgerSequence, Fee (in case Hooks enabled: autodetect (from ledger))
+    ...networkInfo.txValues,
+    Fee: '100',
   }
 
-  log('SIGN & SUBMIT')
+  log('SIGN & SUBMIT', JSON.stringify(Tx, null, 2))
   try {
-    const Signed = await new Sign(Object.assign({}, Tx), process.env.XRPL_SOURCE_ACCOUNT_SECRET, await Connection)
+    const Signed = await signAndSubmit(Tx, Connection, keypair)
     log({Signed})
   } catch (e) {
     log(`Error signing / submitting: ${e.message}`)
@@ -57,9 +61,16 @@ export default (async () => {
 
   if (typeof process.env.ENDPOINT_TESTNET !== 'undefined') {
     log('SIGN & SUBMIT TESTNET')
-    const ConnectionTestnet = await new Conn(process.env.ENDPOINT_TESTNET)
+    const ConnectionTestnet = await new XrplClient(process.env.ENDPOINT_TESTNET)
+    const networkInfo  = await utils.txNetworkAndAccountValues(ConnectionTestnet, process.env.XRPL_SOURCE_ACCOUNT)
+
+    Object.assign(Tx, {
+      // Add: Sequence, Account, LastLedgerSequence, Fee (in case Hooks enabled: autodetect (from ledger))
+      ...networkInfo.txValues,
+    })
+
     try {
-      const SignedTestnet = await new Sign(Object.assign({}, Tx), process.env.XRPL_SOURCE_ACCOUNT_SECRET, await ConnectionTestnet)
+      const SignedTestnet = await signAndSubmit(Tx, ConnectionTestnet, keypair)
       log({SignedTestnet})
     } catch (e) {
       log(`Error signing / submitting @ Testnet: ${e.message}`)
